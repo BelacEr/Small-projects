@@ -1,4 +1,4 @@
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 import sys
 
@@ -40,7 +40,7 @@ def load_key():
     try:
         return open("secret.key", "rb").read()
     except FileNotFoundError:
-        print("Key not found. Please generate one first (option 1).")
+        print("\nKey not found. Please generate one first (option 1).")
         return None
 
 
@@ -50,7 +50,16 @@ def encrypt_message():
     if key is None:
         return
     
-    message = input("Enter the message you want to encrypt: ")
+    try:
+        # Receives the text to be encrypted with try-except for built-in exceptions.
+        message = input("Enter the message you want to encrypt: ")
+    except KeyboardInterrupt:
+        print(thank_you)
+        sys.exit()
+    except EOFError:
+        print(thank_you)
+        sys.exit()
+    
     encoded_message = message.encode()
     f = Fernet(key)
     encrypted_message = f.encrypt(encoded_message)
@@ -63,10 +72,25 @@ def decrypt_message():
     if key is None:
         return
     
-    encrypted_input = input("\nEnter the encrypted message: ").encode()  # To bytes
+    try:
+        # Receives the text to be decrypted with try-except for built-in exceptions.
+        encrypted_input = input("\nEnter the encrypted message: ").encode()  # To bytes
+    except KeyboardInterrupt:
+        print(thank_you)
+        sys.exit()
+    except EOFError:
+        print(thank_you)
+        sys.exit()
+
     f = Fernet(key)
-    decrypted_message = f.decrypt(encrypted_input)
-    print("\nDecrypted message:", decrypted_message.decode())
+    try:
+        # Attemp to decrypt the data.
+        decrypted_message = f.decrypt(encrypted_input)
+        print("\nDecrypted message:", decrypted_message.decode())
+    except InvalidToken:
+        print("\nError: Invalid Fernet token. Decryption failed.")
+    except Exception as e:
+        print(f"\nAn unexpected error occurred during decryption: {e}")
 
 
 def exit_cryptography():
@@ -79,7 +103,7 @@ def exit_cryptography():
 
 def show_menu():
     print("""
-    === CRYPTOGRAPHY-CLI-TOOL ===
+    ===== CRYPTOGRAPHY-CLI-TOOL =====
 1. Generate key (execute only once)
 2. Encrypt message
 3. Decrypt message

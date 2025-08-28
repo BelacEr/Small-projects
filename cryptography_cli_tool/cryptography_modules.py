@@ -98,6 +98,7 @@ def exit_cryptography():
     Gracefully exit the cryptography tool.
     """
     print("\nExiting the program...")
+    print(thank_you)
     sys.exit()
 
 
@@ -112,17 +113,23 @@ def show_menu():
 
 
 def main():
+     """
+     Main function of the program.
+     """
+     menu_options = {
+        1: generate_key,
+        2: encrypt_message,
+        3: decrypt_message,
+        4: exit_cryptography,        
+            }
+
      while True:
         show_menu()
         choice = enter_number("Enter your choice: ")
 
-        if choice == 1:
-            generate_key()
-        elif choice == 2:
-            encrypt_message()
-        elif choice == 3:
-            decrypt_message()
-        elif choice == 4:
-            exit_cryptography()
+        selected_function = menu_options.get(choice)
+
+        if selected_function:
+            selected_function()
         else:
             print(valid_number)
